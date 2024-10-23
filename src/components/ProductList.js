@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Input, Button, Card, Typography } from "antd";
-import './css/ProductList.css'; // CSS dosyasını import et
+import "./css/ProductList.css";
 
 const { Title, Paragraph } = Typography;
 
@@ -12,31 +12,35 @@ const ProductList = () => {
   const baseImageUrl = "https://cdn.dsmcdn.com";
 
   useEffect(() => {
-    fetch('/products.html')
-      .then(response => response.text())
-      .then(html => {
+    fetch("/products.html")
+      .then((response) => response.text())
+      .then((html) => {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        const doc = parser.parseFromString(html, "text/html");
 
-        const productElements = doc.querySelectorAll('div.p-card-wrppr');
-        const productsArray = Array.from(productElements).map(element => {
-          const rawImageUrl = element.querySelector('img.p-card-img')?.src;
-          const cleanedImageUrl = rawImageUrl
-            ? rawImageUrl.replace(/^(http:\/\/localhost:3000|https:\/\/localhost:3000)/, '').replace(/^\/+/, '')
+        const productElements = doc.querySelectorAll("div.p-card-wrppr");
+        const productsArray = Array.from(productElements).map((element) => {
+          const discountedPriceElement =
+            element.querySelector(".prc-box-dscntd");
+          const discountedPrice = discountedPriceElement
+            ? parseFloat(
+                discountedPriceElement.innerText
+                  .trim()
+                  .replace("₺", "")
+                  .replace(".", "")
+                  .replace(",", ".")
+              )
             : null;
 
-          const discountedPriceElement = element.querySelector('.prc-box-dscntd');
-          const discountedPrice = discountedPriceElement ? parseFloat(discountedPriceElement.innerText.trim().replace('₺', '').replace('.', '').replace(',', '.')) : null;
-
           return {
-            id: element.getAttribute('data-id'),
-            name: element.getAttribute('title'),
-            price: { 
+            id: element.getAttribute("data-id"),
+            name: element.getAttribute("title"),
+            price: {
               discountedPrice,
               originalPrice: null,
-              sellingPrice: null
+              sellingPrice: null,
             },
-            imageUrl: cleanedImageUrl ? baseImageUrl + '/' + encodeURIComponent(cleanedImageUrl) : null,
+            // Görsel URL'sini kaldırdık
           };
         });
 
@@ -44,8 +48,8 @@ const ProductList = () => {
         setFilteredProducts(productsArray);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error fetching products:', err);
+      .catch((err) => {
+        console.error("Error fetching products:", err);
         setLoading(false);
       });
   }, []);
@@ -59,19 +63,23 @@ const ProductList = () => {
       return;
     }
 
-    const foundProducts = products.filter(product =>
+    const foundProducts = products.filter((product) =>
       product.name.toLowerCase().includes(searchValue.toLowerCase())
     );
     setFilteredProducts(foundProducts);
   };
 
   const sortByPriceHighToLow = () => {
-    const sortedProducts = [...filteredProducts].sort((a, b) => (b.price.discountedPrice || 0) - (a.price.discountedPrice || 0));
+    const sortedProducts = [...filteredProducts].sort(
+      (a, b) => (b.price.discountedPrice || 0) - (a.price.discountedPrice || 0)
+    );
     setFilteredProducts(sortedProducts);
   };
 
   const sortByPriceLowToHigh = () => {
-    const sortedProducts = [...filteredProducts].sort((a, b) => (a.price.discountedPrice || 0) - (b.price.discountedPrice || 0));
+    const sortedProducts = [...filteredProducts].sort(
+      (a, b) => (a.price.discountedPrice || 0) - (b.price.discountedPrice || 0)
+    );
     setFilteredProducts(sortedProducts);
   };
 
@@ -89,7 +97,9 @@ const ProductList = () => {
       ) : (
         <>
           <Paragraph>
-            Toplam Ürün Sayısı: {filteredProducts.length}
+            <b style={{ color: "red" }}>
+              Toplam Ürün Sayısı: {filteredProducts.length}
+            </b>
           </Paragraph>
 
           <div style={{ marginBottom: 16 }}>
@@ -103,28 +113,30 @@ const ProductList = () => {
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <Button onClick={sortByPriceHighToLow} style={{ marginRight: 8 }}>Fiyatı Yüksekten Düşüğe Sırala</Button>
-            <Button onClick={sortByPriceLowToHigh}>Fiyatı Düşükten Yükseğe Sırala</Button>
+            <Button onClick={sortByPriceHighToLow} style={{ marginRight: 8 }}>
+              Fiyatı Yüksekten Düşüğe Sırala
+            </Button>
+            <Button onClick={sortByPriceLowToHigh}>
+              Fiyatı Düşükten Yükseğe Sırala
+            </Button>
           </div>
 
           <div className="product-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map(product => (
-                <div className="product-card" key={product.id}>
-                  <Card
-                    hoverable
-                    cover={<img alt={product.name} src={product.imageUrl} style={{ height: 150, objectFit: 'cover' }} />}
-                  >
-                    <Card.Meta title={product.name} />
-                    <Paragraph>
-                      Fiyat: {product.price.discountedPrice ? `₺${product.price.discountedPrice.toFixed(2)}` : 'Fiyat Bilgisi Yok'}
-                    </Paragraph>
-                  </Card>
-                </div>
-              ))
-            ) : (
-              searchTerm !== "" && <Paragraph>Ürün bulunamadı.</Paragraph>
-            )}
+            {filteredProducts.length > 0
+              ? filteredProducts.map((product) => (
+                  <div className="product-card" key={product.id}>
+                    <Card hoverable>
+                      <Card.Meta title={product.name} />
+                      <Paragraph>
+                        Fiyat:{" "}
+                        {product.price.discountedPrice
+                          ? `₺${product.price.discountedPrice.toFixed(2)}`
+                          : "Fiyat Bilgisi Yok"}
+                      </Paragraph>
+                    </Card>
+                  </div>
+                ))
+              : searchTerm !== "" && <Paragraph>Ürün bulunamadı.</Paragraph>}
           </div>
         </>
       )}

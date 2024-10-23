@@ -7,40 +7,49 @@
   
   .product-grid {
     display: flex;
-    flex-wrap: wrap; /* Kartların birden fazla satıra yayılmasına izin verir */
-    justify-content: center; /* Kartları ortalar */
-    gap: 10px; /* Kartlar arasındaki boşluk */
-    width: 100%; /* Tam genişlik */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
   }
   
   .product-card {
-    flex: 0 1 calc(50% - 10px); /* İki sütun yapar ve aralarında boşluk bırakır */
-    box-sizing: border-box; /* Padding ve border boyutunu dahil eder */
-    overflow: hidden; /* Taşan içerikleri gizler */
+    flex: 0 1 calc(50% - 10px);
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    transition: transform 0.3s;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-4px);
   }
   
   .product-card img {
-    height: 150px; /* Resim yüksekliğini ayarlayın */
-    object-fit: cover; /* Resmin kutuya uygun olarak kesilmesini sağlar */
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
   }
   
-  /* Metin stilleri */
   .product-card .ant-card-meta-title,
   .product-card .ant-card-meta-description {
-    white-space: nowrap; /* Tek satırda tutar */
-    overflow: hidden; /* Taşan metni gizler */
-    text-overflow: ellipsis; /* Taşan metnin sonuna üç nokta koyar */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
-  /* Mobil uyumlu tasarım */
   @media (max-width: 768px) {
     .product-card {
-      flex: 0 1 calc(100% - 10px); /* Mobilde tam genişlik */
+      flex: 0 1 calc(100% - 10px);
     }
     
     .product-card .ant-card-meta-title,
     .product-card .ant-card-meta-description {
-      white-space: normal; /* Mobilde metni çok satıra yayabilir */
+      white-space: normal;
     }
   }
   
