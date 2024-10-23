@@ -9,7 +9,6 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const baseImageUrl = "https://cdn.dsmcdn.com";
 
   useEffect(() => {
     fetch("/products.html")
