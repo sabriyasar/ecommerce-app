@@ -9,6 +9,7 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [copiedProductIds, setCopiedProductIds] = useState([]);
 
   useEffect(() => {
     fetch("/products.html")
@@ -31,6 +32,9 @@ const ProductList = () => {
               )
             : null;
 
+          const linkElement = element.querySelector("a");
+          const productLink = linkElement ? linkElement.href : "#";
+
           return {
             id: element.getAttribute("data-id"),
             name: element.getAttribute("title"),
@@ -39,7 +43,7 @@ const ProductList = () => {
               originalPrice: null,
               sellingPrice: null,
             },
-            // Görsel URL'sini kaldırdık
+            link: productLink,
           };
         });
 
@@ -87,6 +91,12 @@ const ProductList = () => {
     setFilteredProducts(products);
   };
 
+  const handleCopyLink = (productId, link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedProductIds((prevCopied) => [...prevCopied, productId]);
+    });
+  };
+
   return (
     <div className="product-list-container">
       <Title level={1}>Ürün Listesi</Title>
@@ -132,6 +142,25 @@ const ProductList = () => {
                           ? `₺${product.price.discountedPrice.toFixed(2)}`
                           : "Fiyat Bilgisi Yok"}
                       </Paragraph>
+                      <Paragraph>
+                        <a href={product.link} target="_blank" rel="noopener noreferrer">
+                          Ürün Linki
+                        </a>
+                      </Paragraph>
+                      <Button
+                        onClick={() => handleCopyLink(product.id, product.link)}
+                        style={{
+                          backgroundColor:
+                            copiedProductIds.includes(product.id)
+                              ? "green"
+                              : "gray",
+                          color: "white",
+                        }}
+                      >
+                        {copiedProductIds.includes(product.id)
+                          ? "Kopyalandı!"
+                          : "Linki Kopyala"}
+                      </Button>
                     </Card>
                   </div>
                 ))
