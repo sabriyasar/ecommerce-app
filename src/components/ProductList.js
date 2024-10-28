@@ -12,6 +12,10 @@ const ProductList = () => {
   const [copiedProductIds, setCopiedProductIds] = useState([]);
 
   useEffect(() => {
+    // LocalStorage'dan kopyalanan ürünleri yükle
+    const savedCopiedProductIds = JSON.parse(localStorage.getItem("copiedProductIds") || "[]");
+    setCopiedProductIds(savedCopiedProductIds);
+
     fetch("/products.html")
       .then((response) => response.text())
       .then((html) => {
@@ -20,8 +24,7 @@ const ProductList = () => {
 
         const productElements = doc.querySelectorAll("div.p-card-wrppr");
         const productsArray = Array.from(productElements).map((element) => {
-          const discountedPriceElement =
-            element.querySelector(".prc-box-dscntd");
+          const discountedPriceElement = element.querySelector(".prc-box-dscntd");
           const discountedPrice = discountedPriceElement
             ? parseFloat(
                 discountedPriceElement.innerText
@@ -93,7 +96,11 @@ const ProductList = () => {
 
   const handleCopyLink = (productId, link) => {
     navigator.clipboard.writeText(link).then(() => {
-      setCopiedProductIds((prevCopied) => [...prevCopied, productId]);
+      setCopiedProductIds((prevCopied) => {
+        const updatedCopied = [...prevCopied, productId];
+        localStorage.setItem("copiedProductIds", JSON.stringify(updatedCopied));
+        return updatedCopied;
+      });
     });
   };
 
