@@ -12,8 +12,9 @@ const ProductList = () => {
   const [copiedProductIds, setCopiedProductIds] = useState([]);
 
   useEffect(() => {
-    // LocalStorage'dan kopyalanan ürünleri yükle
-    const savedCopiedProductIds = JSON.parse(localStorage.getItem("copiedProductIds") || "[]");
+    const savedCopiedProductIds = JSON.parse(
+      localStorage.getItem("copiedProductIds") || "[]"
+    );
     setCopiedProductIds(savedCopiedProductIds);
 
     fetch("/products.html")
@@ -24,7 +25,8 @@ const ProductList = () => {
 
         const productElements = doc.querySelectorAll("div.p-card-wrppr");
         const productsArray = Array.from(productElements).map((element) => {
-          const discountedPriceElement = element.querySelector(".prc-box-dscntd");
+          const discountedPriceElement =
+            element.querySelector(".prc-box-dscntd");
           const discountedPrice = discountedPriceElement
             ? parseFloat(
                 discountedPriceElement.innerText
@@ -104,6 +106,14 @@ const ProductList = () => {
     });
   };
 
+  const handleClearSelection = (productId) => {
+    setCopiedProductIds((prevCopied) => {
+      const updatedCopied = prevCopied.filter((id) => id !== productId);
+      localStorage.setItem("copiedProductIds", JSON.stringify(updatedCopied));
+      return updatedCopied;
+    });
+  };
+
   return (
     <div className="product-list-container">
       <Title level={1}>Ürün Listesi</Title>
@@ -150,23 +160,33 @@ const ProductList = () => {
                           : "Fiyat Bilgisi Yok"}
                       </Paragraph>
                       <Paragraph>
-                        <a href={product.link} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={product.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Ürün Linki
                         </a>
                       </Paragraph>
                       <Button
                         onClick={() => handleCopyLink(product.id, product.link)}
                         style={{
-                          backgroundColor:
-                            copiedProductIds.includes(product.id)
-                              ? "green"
-                              : "gray",
+                          backgroundColor: copiedProductIds.includes(product.id)
+                            ? "green"
+                            : "gray",
                           color: "white",
+                          marginRight: 8,
                         }}
                       >
                         {copiedProductIds.includes(product.id)
                           ? "Kopyalandı!"
                           : "Linki Kopyala"}
+                      </Button>
+                      <Button
+                        onClick={() => handleClearSelection(product.id)}
+                        style={{ backgroundColor: "red", color: "white" }}
+                      >
+                        Seçimi Temizle
                       </Button>
                     </Card>
                   </div>
