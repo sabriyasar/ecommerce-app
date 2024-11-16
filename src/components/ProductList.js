@@ -15,8 +15,10 @@ const ProductList = () => {
   const [copiedProductIds, setCopiedProductIds] = useState([]);
   const [previousProductIds, setPreviousProductIds] = useState([]); // Önceki ürün ID'leri
   const [currentPage, setCurrentPage] = useState(1); // Sayfa numarası
-  const [isNewProductFilterActive, setIsNewProductFilterActive] = useState(false); // Yeni ürün filtresi
-  const [isRemovedProductFilterActive, setIsRemovedProductFilterActive] = useState(false); // Silinen ürün filtresi
+  const [isNewProductFilterActive, setIsNewProductFilterActive] =
+    useState(false); // Yeni ürün filtresi
+  const [isRemovedProductFilterActive, setIsRemovedProductFilterActive] =
+    useState(false); // Silinen ürün filtresi
   const productsPerPage = 20; // Her sayfada gösterilecek ürün sayısı
   const [addedProductCount, setAddedProductCount] = useState(0); // Yeni eklenen ürün sayısı
   const [removedProductCount, setRemovedProductCount] = useState(0); // Silinen ürün sayısı
@@ -28,7 +30,9 @@ const ProductList = () => {
     );
     setCopiedProductIds(savedCopiedProductIds);
 
-    const savedNewProducts = JSON.parse(localStorage.getItem("newProducts") || "[]");
+    const savedNewProducts = JSON.parse(
+      localStorage.getItem("newProducts") || "[]"
+    );
     const savedPreviousProductIds = JSON.parse(
       localStorage.getItem("previousProductIds") || "[]"
     );
@@ -41,33 +45,35 @@ const ProductList = () => {
         const doc = parser.parseFromString(html, "text/html");
 
         const productElements = doc.querySelectorAll("div.p-card-wrppr");
-        const previousProductsArray = Array.from(productElements).map((element) => {
-          const discountedPriceElement =
-            element.querySelector(".prc-box-dscntd");
-          const discountedPrice = discountedPriceElement
-            ? parseFloat(
-                discountedPriceElement.innerText
-                  .trim()
-                  .replace("₺", "")
-                  .replace(".", "")
-                  .replace(",", ".")
-              )
-            : null;
+        const previousProductsArray = Array.from(productElements).map(
+          (element) => {
+            const discountedPriceElement =
+              element.querySelector(".prc-box-dscntd");
+            const discountedPrice = discountedPriceElement
+              ? parseFloat(
+                  discountedPriceElement.innerText
+                    .trim()
+                    .replace("₺", "")
+                    .replace(".", "")
+                    .replace(",", ".")
+                )
+              : null;
 
-          const linkElement = element.querySelector("a");
-          const productLink = linkElement ? linkElement.href : "#";
+            const linkElement = element.querySelector("a");
+            const productLink = linkElement ? linkElement.href : "#";
 
-          return {
-            id: element.getAttribute("data-id"),
-            name: element.getAttribute("title"),
-            price: {
-              discountedPrice,
-              originalPrice: null,
-              sellingPrice: null,
-            },
-            link: productLink,
-          };
-        });
+            return {
+              id: element.getAttribute("data-id"),
+              name: element.getAttribute("title"),
+              price: {
+                discountedPrice,
+                originalPrice: null,
+                sellingPrice: null,
+              },
+              link: productLink,
+            };
+          }
+        );
 
         // Yeni ürün sayfasını al
         fetch("/products.html") // Yeni ürün sayfası
@@ -75,42 +81,48 @@ const ProductList = () => {
           .then((html) => {
             const doc = new DOMParser().parseFromString(html, "text/html");
             const newProductElements = doc.querySelectorAll("div.p-card-wrppr");
-            const newProductsArray = Array.from(newProductElements).map((element) => {
-              const discountedPriceElement =
-                element.querySelector(".prc-box-dscntd");
-              const discountedPrice = discountedPriceElement
-                ? parseFloat(
-                    discountedPriceElement.innerText
-                      .trim()
-                      .replace("₺", "")
-                      .replace(".", "")
-                      .replace(",", ".")
-                  )
-                : null;
+            const newProductsArray = Array.from(newProductElements).map(
+              (element) => {
+                const discountedPriceElement =
+                  element.querySelector(".prc-box-dscntd");
+                const discountedPrice = discountedPriceElement
+                  ? parseFloat(
+                      discountedPriceElement.innerText
+                        .trim()
+                        .replace("₺", "")
+                        .replace(".", "")
+                        .replace(",", ".")
+                    )
+                  : null;
 
-              const linkElement = element.querySelector("a");
-              const productLink = linkElement ? linkElement.href : "#";
+                const linkElement = element.querySelector("a");
+                const productLink = linkElement ? linkElement.href : "#";
 
-              return {
-                id: element.getAttribute("data-id"),
-                name: element.getAttribute("title"),
-                price: {
-                  discountedPrice,
-                  originalPrice: null,
-                  sellingPrice: null,
-                },
-                link: productLink,
-              };
-            });
+                return {
+                  id: element.getAttribute("data-id"),
+                  name: element.getAttribute("title"),
+                  price: {
+                    discountedPrice,
+                    originalPrice: null,
+                    sellingPrice: null,
+                  },
+                  link: productLink,
+                };
+              }
+            );
 
             // Yeni eklenen ürünleri bul
             const newAddedProducts = newProductsArray.filter(
-              (product) => !previousProductsArray.some((prev) => prev.id === product.id)
+              (product) =>
+                !previousProductsArray.some((prev) => prev.id === product.id)
             );
 
             // Silinen ürünleri bul
             const removedProducts = previousProductsArray.filter(
-              (product) => !newProductsArray.some((newProduct) => newProduct.id === product.id)
+              (product) =>
+                !newProductsArray.some(
+                  (newProduct) => newProduct.id === product.id
+                )
             );
 
             // Yeni eklenen ve silinen ürün sayısını ayarla
@@ -190,11 +202,27 @@ const ProductList = () => {
   };
 
   const downloadExcel = () => {
-    const data = filteredProducts.map((product) => ({
+    // Silinen ürünleri de dahil etmek için tüm ürünlerin birleşimini oluştur
+    const allProducts = [
+      ...filteredProducts,
+      ...removedProducts, // Silinen ürünler ayrı olarak eklenir
+    ];
+
+    const data = allProducts.map((product) => ({
       "Ürün Adı": product.name,
-      "Fiyat (₺)": product.price.discountedPrice
+      "Fiyat (₺)": product.price?.discountedPrice
         ? product.price.discountedPrice.toFixed(2)
         : "Fiyat Bilgisi Yok",
+      "Yeni Ürün": newProducts.some(
+        (newProduct) => newProduct.id === product.id
+      )
+        ? "Evet"
+        : "Hayır",
+      "Silinen Ürün": removedProducts.some(
+        (removedProduct) => removedProduct.id === product.id
+      )
+        ? "Evet"
+        : "Hayır",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -299,29 +327,29 @@ const ProductList = () => {
                 color: "white",
               }}
             >
-              {isNewProductFilterActive ? "Filtreyi Kaldır" : "Yeni Ürünleri Göster"}
+              {isNewProductFilterActive
+                ? "Filtreyi Kaldır"
+                : "Yeni Ürünleri Göster"}
             </Button>
             <Button
               onClick={toggleRemovedProductFilter}
               style={{
                 marginLeft: 8,
-                backgroundColor: isRemovedProductFilterActive ? "blue" : "#0000FF",
+                backgroundColor: isRemovedProductFilterActive
+                  ? "blue"
+                  : "#0000FF",
                 borderColor: isRemovedProductFilterActive ? "blue" : "#0000FF",
                 color: "white",
               }}
             >
-              {isRemovedProductFilterActive ? "Filtreyi Kaldır" : "Silinen Ürünleri Göster"}
+              {isRemovedProductFilterActive
+                ? "Filtreyi Kaldır"
+                : "Silinen Ürünleri Göster"}
             </Button>
-            <Button
-              onClick={sortByPriceLowToHigh}
-              style={{ marginLeft: 8 }}
-            >
+            <Button onClick={sortByPriceLowToHigh} style={{ marginLeft: 8 }}>
               Fiyatı Düşükten Yükseğe Sırala
             </Button>
-            <Button
-              onClick={sortByPriceHighToLow}
-              style={{ marginLeft: 8 }}
-            >
+            <Button onClick={sortByPriceHighToLow} style={{ marginLeft: 8 }}>
               Fiyatı Yüksekten Düşüğe Sırala
             </Button>
             <Button
@@ -342,9 +370,9 @@ const ProductList = () => {
             {currentProducts.map((product) => (
               <div className="product-card" key={product.id}>
                 <Card hoverable>
-                  {newProducts.some((newProduct) => newProduct.id === product.id) && (
-                    <div className="new-product-tag">Yeni Ürün!</div>
-                  )}
+                  {newProducts.some(
+                    (newProduct) => newProduct.id === product.id
+                  ) && <div className="new-product-tag">Yeni Ürün!</div>}
                   <Card.Meta title={product.name} />
                   <Paragraph>
                     Fiyat:{" "}
