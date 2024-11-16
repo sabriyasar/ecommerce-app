@@ -53,3 +53,17 @@
     }
   }
   
+  .new-product-tag {
+    position: absolute; /* Ürün kutusunun içinde sabit konumlandır */
+    bottom: 10px; /* Alt kısmı 10px mesafeye yerleştir */
+    right: 10px; /* Sağ kısmı 10px mesafeye yerleştir */
+    background-color: green;
+    color: white;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    z-index: 10; /* Etiketin ön planda olması için */
+  }
+  
+  
