@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Input, Button, Card, Typography } from "antd";
+import { FileExcelOutlined } from "@ant-design/icons"; // Excel ikonu
+import * as XLSX from "xlsx"; // Excel kütüphanesi
 import "./css/ProductList.css";
 
 const { Title, Paragraph } = Typography;
@@ -114,6 +116,21 @@ const ProductList = () => {
     });
   };
 
+  const downloadExcel = () => {
+    const data = filteredProducts.map((product) => ({
+      "Ürün Adı": product.name,
+      "Fiyat (₺)": product.price.discountedPrice
+        ? product.price.discountedPrice.toFixed(2)
+        : "Fiyat Bilgisi Yok",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Ürünler");
+
+    XLSX.writeFile(workbook, "urunler.xlsx");
+  };
+
   return (
     <div className="product-list-container">
       <Title level={1}>Ürün Listesi</Title>
@@ -144,6 +161,19 @@ const ProductList = () => {
             </Button>
             <Button onClick={sortByPriceLowToHigh}>
               Fiyatı Düşükten Yükseğe Sırala
+            </Button>
+            <Button
+              onClick={downloadExcel}
+              type="primary"
+              icon={<FileExcelOutlined />} // Excel ikonu
+              style={{
+                backgroundColor: "#52c41a", // Excel temasına uygun renk
+                borderColor: "#52c41a",
+                color: "white",
+                marginLeft: 8,
+              }}
+            >
+              Excel İndir
             </Button>
           </div>
 
